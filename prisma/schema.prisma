@@ -1,0 +1,537 @@
+// ============================================================
+// LADS Backend — Prisma Schema
+// Banco: SQLite (local)
+// Gerado a partir do Prototipo-DB-LADS.md v1.0
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// 1. USERS
+// ============================================================
+model User {
+  id                    String    @id @default(uuid())
+  first_name            String
+  last_name             String
+  email                 String    @unique
+  phone                 String?
+  password_hash         String
+  password_reset_token  String?
+  password_reset_expires DateTime?
+  email_verified        Boolean   @default(false)
+  email_verified_at     DateTime?
+  avatar_url            String?
+  bio                   String?
+  location              String?
+  date_of_birth         DateTime?
+  gender                String?
+  institution           String?
+  course                String?
+  enrollment_number     String?
+  graduation_year       Int?
+  is_professional       Boolean   @default(false)
+  is_lads_member        Boolean   @default(false)
+  is_admin              Boolean   @default(false)
+  account_status        String    @default("active")
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  last_login            DateTime?
+  deleted_at            DateTime?
+
+  // Relations
+  professional          Professional?
+  organized_events      Event[]              @relation("EventOrganizer")
+  event_participations  EventParticipant[]
+  topics                Topic[]              @relation("TopicAuthor")
+  comments              Comment[]            @relation("CommentAuthor")
+  likes                 Like[]
+  service_requests_sent ServiceRequest[]     @relation("ServiceRequester")
+  service_updates_made  ServiceRequestUpdate[] @relation("ServiceUpdater")
+  ratings_given         Rating[]             @relation("RatingGiver")
+  following             Follow[]             @relation("Follower")
+  connections_1         Connection[]         @relation("ConnectionUser1")
+  connections_2         Connection[]         @relation("ConnectionUser2")
+  messages_sent         Message[]            @relation("MessageSender")
+  messages_received     Message[]            @relation("MessageRecipient")
+  notifications         Notification[]       @relation("NotificationUser")
+  notifications_as_actor Notification[]      @relation("NotificationActor")
+  audit_logs            AuditLog[]
+
+  @@map("users")
+}
+
+// ============================================================
+// 2. PROFESSIONALS
+// ============================================================
+model Professional {
+  id                      String    @id @default(uuid())
+  user_id                 String    @unique
+  title                   String?
+  company                 String?
+  position                String?
+  bio_professional        String?
+  linkedin_url            String?
+  github_url              String?
+  portfolio_url           String?
+  website_url             String?
+  twitter_url             String?
+  lads_join_date          DateTime?
+  lads_role               String?
+  lads_bio                String?
+  certifications          String    @default("[]") // Em SQLite arrays viram String serializada
+  achievements            String    @default("[]") // Em SQLite arrays viram String serializada
+  available_for_consulting Boolean  @default(false)
+  available_for_mentoring  Boolean  @default(false)
+  available_for_speaking   Boolean  @default(false)
+  total_projects          Int       @default(0)
+  total_mentees           Int       @default(0)
+  average_rating          Decimal   @default(0)
+  total_ratings           Int       @default(0)
+  total_followers         Int       @default(0)
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  // Relations
+  user                    User      @relation(fields: [user_id], references: [id])
+  expertise               Expertise[]
+  ratings                 Rating[]  @relation("ProfessionalRating")
+  followers               Follow[]  @relation("ProfessionalFollowed")
+  service_requests        ServiceRequest[] @relation("ServiceAssignee")
+
+  @@map("professionals")
+}
+
+// ============================================================
+// 3. EXPERTISE
+// ============================================================
+model Expertise {
+  id                  String    @id @default(uuid())
+  professional_id     String
+  skill_name          String
+  category            String?
+  proficiency_level   String?
+  years_of_experience Int?
+  description         String?
+  certification_id    String?
+  certification_url   String?
+  endorsements        Int       @default(0)
+  created_at          DateTime  @default(now())
+  updated_at          DateTime  @updatedAt
+
+  // Relations
+  professional        Professional @relation(fields: [professional_id], references: [id])
+
+  @@map("expertise")
+}
+
+// ============================================================
+// 4. EVENTS
+// ============================================================
+model Event {
+  id                    String    @id @default(uuid())
+  title                 String
+  description           String?
+  short_description     String?
+  cover_image_url       String?
+  thumbnail_url         String?
+  start_date            DateTime
+  end_date              DateTime
+  registration_start    DateTime?
+  registration_deadline DateTime?
+  location              String?
+  location_lat          Decimal?
+  location_lng          Decimal?
+  is_online             Boolean   @default(false)
+  online_link           String?
+  event_type            String?
+  category              String?
+  max_participants      Int?
+  current_participants  Int       @default(0)
+  organizer_id          String
+  co_organizers         String    @default("[]") // Em SQLite arrays viram String serializada
+  status                String    @default("draft")
+  visibility            String    @default("public")
+  total_views           Int       @default(0)
+  total_registrations   Int       @default(0)
+  total_attendees       Int       @default(0)
+  tags                  String    @default("[]") // Em SQLite arrays viram String serializada
+  agenda                String?
+  requirements          String?
+  created_at            DateTime  @default(now())
+  updated_at            DateTime  @updatedAt
+  deleted_at            DateTime?
+
+  // Relations
+  organizer             User             @relation("EventOrganizer", fields: [organizer_id], references: [id])
+  participants          EventParticipant[]
+  forum                 Forum?
+
+  @@map("events")
+}
+
+// ============================================================
+// 5. EVENT_PARTICIPANTS
+// ============================================================
+model EventParticipant {
+  id                    String    @id @default(uuid())
+  event_id              String
+  user_id               String
+  registration_status   String    @default("pending")
+  registered_at         DateTime  @default(now())
+  confirmed_at          DateTime?
+  checked_in_at         DateTime?
+  cancelled_at          DateTime?
+  registration_notes    String?
+  team_name             String?
+  team_id               String?
+  certificate_issued    Boolean   @default(false)
+  certificate_url       String?
+  certificate_issued_at DateTime?
+  feedback_given        Boolean   @default(false)
+  rating                Int?
+  review                String?
+  feedback_given_at     DateTime?
+
+  // Relations
+  event                 Event     @relation(fields: [event_id], references: [id])
+  user                  User      @relation(fields: [user_id], references: [id])
+
+  @@unique([event_id, user_id])
+  @@map("event_participants")
+}
+
+// ============================================================
+// 6. FORUMS
+// ============================================================
+model Forum {
+  id               String    @id @default(uuid())
+  event_id         String    @unique
+  title            String
+  description      String?
+  is_moderated     Boolean   @default(false)
+  moderator_ids    String    @default("[]") // Em SQLite arrays viram String serializada
+  total_topics     Int       @default(0)
+  total_comments   Int       @default(0)
+  total_members    Int       @default(0)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+
+  // Relations
+  event            Event     @relation(fields: [event_id], references: [id])
+  topics           Topic[]
+
+  @@map("forums")
+}
+
+// ============================================================
+// 7. TOPICS
+// ============================================================
+model Topic {
+  id               String    @id @default(uuid())
+  forum_id         String
+  author_id        String
+  title            String
+  content          String
+  category         String?
+  is_pinned        Boolean   @default(false)
+  is_locked        Boolean   @default(false)
+  is_archived      Boolean   @default(false)
+  is_spam          Boolean   @default(false)
+  total_views      Int       @default(0)
+  total_comments   Int       @default(0)
+  total_likes      Int       @default(0)
+  last_activity_at DateTime  @default(now())
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  deleted_at       DateTime?
+
+  // Relations
+  forum            Forum     @relation(fields: [forum_id], references: [id])
+  author           User      @relation("TopicAuthor", fields: [author_id], references: [id])
+  comments         Comment[]
+
+  @@map("topics")
+}
+
+// ============================================================
+// 8. COMMENTS
+// ============================================================
+model Comment {
+  id                String    @id @default(uuid())
+  topic_id          String
+  author_id         String
+  parent_comment_id String?
+  content           String
+  is_edited         Boolean   @default(false)
+  edited_at         DateTime?
+  is_spam           Boolean   @default(false)
+  is_deleted        Boolean   @default(false)
+  total_likes       Int       @default(0)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  topic             Topic     @relation(fields: [topic_id], references: [id])
+  author            User      @relation("CommentAuthor", fields: [author_id], references: [id])
+  parent_comment    Comment?  @relation("CommentReplies", fields: [parent_comment_id], references: [id])
+  replies           Comment[] @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+// ============================================================
+// 9. LIKES
+// ============================================================
+model Like {
+  id            String   @id @default(uuid())
+  user_id       String   
+  likeable_type String   // "topic" | "comment"
+  likeable_id   String   
+  created_at    DateTime @default(now())
+
+  // Relations
+  user          User     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, likeable_type, likeable_id])
+  @@map("likes")
+}
+
+// ============================================================
+// 10. SERVICES
+// ============================================================
+model Service {
+  id                 String    @id @default(uuid())
+  name               String    
+  slug               String    @unique 
+  description        String?   
+  icon               String?   
+  category           String?   
+  subcategory        String?   
+  estimated_duration String?   
+  base_price         Decimal?  
+  is_custom_price    Boolean   @default(false)
+  technologies       String    @default("[]") // Em SQLite arrays viram String serializada
+  deliverables       String    @default("[]") // Em SQLite arrays viram String serializada
+  is_active          Boolean   @default(true)
+  total_requests     Int       @default(0)
+  average_rating     Decimal   @default(0) 
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  // Relations
+  requests           ServiceRequest[]
+
+  @@map("services")
+}
+
+// ============================================================
+// 11. SERVICE_REQUESTS
+// ============================================================
+model ServiceRequest {
+  id                   String    @id @default(uuid())
+  request_number       String    @unique 
+  service_id           String    
+  requester_id         String    
+  assigned_to_id       String?   
+  title                String    
+  description          String?   
+  requirements         String?   
+  budget_estimation    Decimal?  
+  final_price          Decimal?  
+  price_status         String?   
+  request_date         DateTime  @default(now())
+  deadline             DateTime?
+  estimated_start_date DateTime?
+  estimated_end_date   DateTime?
+  actual_start_date    DateTime?
+  actual_end_date      DateTime?
+  status               String    @default("open") 
+  priority             String    @default("medium") 
+  attachments          String?   // SQLite não aceita Json, mapeando como String JSON
+  last_message_date    DateTime?
+  created_at           DateTime  @default(now())
+  updated_at           DateTime  @updatedAt
+
+  // Relations
+  service              Service      @relation(fields: [service_id], references: [id])
+  requester            User         @relation("ServiceRequester", fields: [requester_id], references: [id])
+  assigned_to          Professional? @relation("ServiceAssignee", fields: [assigned_to_id], references: [id])
+  updates              ServiceRequestUpdate[]
+
+  @@map("service_requests")
+}
+
+// ============================================================
+// 12. SERVICE_REQUEST_UPDATES
+// ============================================================
+model ServiceRequestUpdate {
+  id                 String   @id @default(uuid())
+  service_request_id String   
+  updated_by_id      String   
+  update_type        String   
+  title              String?  
+  description        String?  
+  field_changed      String?  
+  old_value          String?  
+  new_value          String?  
+  created_at         DateTime @default(now())
+
+  // Relations
+  service_request    ServiceRequest @relation(fields: [service_request_id], references: [id])
+  updated_by         User           @relation("ServiceUpdater", fields: [updated_by_id], references: [id])
+
+  @@map("service_request_updates")
+}
+
+// ============================================================
+// 13. RATINGS
+// ============================================================
+model Rating {
+  id              String    @id @default(uuid())
+  professional_id String    
+  rater_id        String    
+  score           Int
+  title           String?   
+  review          String?   
+  context_type    String?   
+  context_id      String?   
+  is_verified     Boolean   @default(false)
+  is_helpful      Boolean   @default(false)
+  helpful_count   Int       @default(0)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  professional    Professional @relation("ProfessionalRating", fields: [professional_id], references: [id])
+  rater           User         @relation("RatingGiver", fields: [rater_id], references: [id])
+
+  @@map("ratings")
+}
+
+// ============================================================
+// 14. FOLLOWS
+// ============================================================
+model Follow {
+  id                  String    @id @default(uuid())
+  follower_id         String    
+  professional_id     String    
+  is_active           Boolean   @default(true)
+  mute_notifications  Boolean   @default(false)
+  created_at          DateTime  @default(now())
+  unfollowed_at       DateTime?
+
+  // Relations
+  follower            User         @relation("Follower", fields: [follower_id], references: [id])
+  professional        Professional @relation("ProfessionalFollowed", fields: [professional_id], references: [id])
+
+  @@unique([follower_id, professional_id])
+  @@map("follows")
+}
+
+// ============================================================
+// 15. CONNECTIONS
+// ============================================================
+model Connection {
+  id               String    @id @default(uuid())
+  user_id_1        String    
+  user_id_2        String    
+  status           String    @default("pending") 
+  initiated_by_id  String    
+  last_message_date DateTime?
+  created_at       DateTime  @default(now())
+  accepted_at      DateTime?
+  blocked_at       DateTime?
+
+  // Relations
+  user1            User      @relation("ConnectionUser1", fields: [user_id_1], references: [id])
+  user2            User      @relation("ConnectionUser2", fields: [user_id_2], references: [id])
+  messages         Message[]
+
+  @@unique([user_id_1, user_id_2])
+  @@map("connections")
+}
+
+// ============================================================
+// 16. MESSAGES
+// ============================================================
+model Message {
+  id              String    @id @default(uuid())
+  sender_id       String    
+  recipient_id    String    
+  connection_id   String    
+  content         String    
+  message_type    String    @default("text") 
+  attachment_url  String?   
+  attachment_type String?   
+  is_read         Boolean   @default(false)
+  read_at         DateTime?
+  is_edited       Boolean   @default(false)
+  edited_at       DateTime?
+  is_deleted      Boolean   @default(false)
+  deleted_at      DateTime?
+  reactions       String?   // SQLite não suporta Json, mapeando como String
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  sender          User       @relation("MessageSender", fields: [sender_id], references: [id])
+  recipient       User       @relation("MessageRecipient", fields: [recipient_id], references: [id])
+  connection      Connection @relation(fields: [connection_id], references: [id])
+
+  @@map("messages")
+}
+
+// ============================================================
+// 17. NOTIFICATIONS
+// ============================================================
+model Notification {
+  id                   String    @id @default(uuid())
+  user_id              String    
+  actor_id             String?   
+  type                 String    
+  title                String    
+  message              String?   
+  object_type          String?   
+  object_id            String?   
+  related_url          String?   
+  is_read              Boolean   @default(false)
+  read_at              DateTime?
+  is_archived          Boolean   @default(false)
+  notification_channel String?   
+  created_at           DateTime  @default(now())
+  sent_at              DateTime?
+
+  // Relations
+  user                 User      @relation("NotificationUser", fields: [user_id], references: [id])
+  actor                User?     @relation("NotificationActor", fields: [actor_id], references: [id])
+
+  @@map("notifications")
+}
+
+// ============================================================
+// 18. AUDIT_LOG
+// ============================================================
+model AuditLog {
+  id          String   @id @default(uuid())
+  user_id     String   
+  action      String   
+  entity_type String   
+  entity_id   String?  
+  description String?  
+  changes     String?  // SQLite nao suporta Json, mapeando como String
+  ip_address  String?  
+  user_agent  String?  
+  created_at  DateTime @default(now())
+
+  // Relations
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@map("audit_log")
+}
