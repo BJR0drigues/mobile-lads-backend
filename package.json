@@ -1,0 +1,26 @@
+{
+  "name": "mobile-lads-backend",
+  "version": "1.0.0",
+  "description": "Backend API para o app mobile LADS",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "keywords": ["lads", "backend", "prisma", "typescript"],
+  "author": "LADS",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prisma": "^5.20.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}
