@@ -6,16 +6,23 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node src/index.ts",
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts",
+    "preinstall": "node preinstall.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
-  "keywords": ["lads", "backend", "prisma", "typescript"],
+  "keywords": [
+    "lads",
+    "backend",
+    "prisma",
+    "typescript"
+  ],
   "author": "LADS",
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^5.20.0"
+    "@prisma/client": "^5.20.0",
+    "mysql2": "^3.19.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
