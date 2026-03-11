@@ -107,8 +107,8 @@ async function main() {
             lads_join_date: new Date('2020-03-01'),
             lads_role: 'Tech Lead',
             lads_bio: 'Responsável pelo desenvolvimento das plataformas tecnológicas do LADS.',
-            certifications: JSON.stringify(['AWS Certified Developer', 'Google Cloud Professional']),
-            achievements: JSON.stringify(['Melhor projeto LADS 2022', 'Palestrante na SemanaCompex 2023']),
+            certifications: ['AWS Certified Developer', 'Google Cloud Professional'],
+            achievements: ['Melhor projeto LADS 2022', 'Palestrante na SemanaCompex 2023'],
             available_for_consulting: true,
             available_for_mentoring: true,
             available_for_speaking: true,
@@ -174,8 +174,8 @@ async function main() {
             estimated_duration: '2-8 semanas',
             base_price: 1500.00,
             is_custom_price: true,
-            technologies: JSON.stringify(['React', 'Next.js', 'Node.js', 'TypeScript', 'PostgreSQL']),
-            deliverables: JSON.stringify(['Código-fonte', 'Documentação', 'Deploy em produção', 'Manual do usuário']),
+            technologies: ['React', 'Next.js', 'Node.js', 'TypeScript', 'PostgreSQL'],
+            deliverables: ['Código-fonte', 'Documentação', 'Deploy em produção', 'Manual do usuário'],
             is_active: true,
         },
     });
@@ -193,8 +193,8 @@ async function main() {
             estimated_duration: '4-12 semanas',
             base_price: 2500.00,
             is_custom_price: true,
-            technologies: JSON.stringify(['React Native', 'Expo', 'TypeScript', 'Node.js']),
-            deliverables: JSON.stringify(['Código-fonte', 'App publicado nas lojas', 'Documentação']),
+            technologies: ['React Native', 'Expo', 'TypeScript', 'Node.js'],
+            deliverables: ['Código-fonte', 'App publicado nas lojas', 'Documentação'],
             is_active: true,
         },
     });
@@ -226,17 +226,17 @@ async function main() {
             max_participants: 200,
             current_participants: 0,
             organizer_id: adminUser.id,
-            co_organizers: JSON.stringify([professionalUser.id]),
+            co_organizers: [professionalUser.id],
             status: 'published',
             visibility: 'public',
-            tags: JSON.stringify(['tecnologia', 'programação', 'hackathon', 'UFMG', 'LADS']),
-            agenda: JSON.stringify([
+            tags: ['tecnologia', 'programação', 'hackathon', 'UFMG', 'LADS'],
+            agenda: [
                 { day: 1, date: '14/04', activities: ['Abertura oficial', 'Palestra: IA no futuro', 'Workshop React Native'] },
                 { day: 2, date: '15/04', activities: ['Workshop Node.js', 'Palestra: DevOps na prática'] },
                 { day: 3, date: '16/04', activities: ['Início do Hackathon', 'Mentoria com profissionais'] },
                 { day: 4, date: '17/04', activities: ['Hackathon - dia 2', 'Apresentações dos projetos'] },
                 { day: 5, date: '18/04', activities: ['Premiação Hackathon', 'Encerramento e networking'] },
-            ]),
+            ],
             requirements: 'Trazer notebook. Noções básicas de programação são recomendadas.',
         },
     });
@@ -279,7 +279,7 @@ async function main() {
             title: 'Fórum - LADS Tech Week 2026',
             description: 'Espaço para discussões, dúvidas e networking dos participantes da LADS Tech Week 2026.',
             is_moderated: true,
-            moderator_ids: JSON.stringify([adminUser.id]),
+            moderator_ids: [adminUser.id],
         },
     });
 

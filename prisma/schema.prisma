@@ -1,6 +1,6 @@
 // ============================================================
 // LADS Backend — Prisma Schema
-// Banco: SQLite (local)
+// Banco: MySQL
 // Gerado a partir do Prototipo-DB-LADS.md v1.0
 // ============================================================
 
@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -85,8 +85,8 @@ model Professional {
   lads_join_date          DateTime?
   lads_role               String?
   lads_bio                String?
-  certifications          String    @default("[]") // Em SQLite arrays viram String serializada
-  achievements            String    @default("[]") // Em SQLite arrays viram String serializada
+  certifications          Json      @default("[]")
+  achievements            Json      @default("[]")
   available_for_consulting Boolean  @default(false)
   available_for_mentoring  Boolean  @default(false)
   available_for_speaking   Boolean  @default(false)
@@ -155,14 +155,14 @@ model Event {
   max_participants      Int?
   current_participants  Int       @default(0)
   organizer_id          String
-  co_organizers         String    @default("[]") // Em SQLite arrays viram String serializada
+  co_organizers         Json      @default("[]")
   status                String    @default("draft")
   visibility            String    @default("public")
   total_views           Int       @default(0)
   total_registrations   Int       @default(0)
   total_attendees       Int       @default(0)
-  tags                  String    @default("[]") // Em SQLite arrays viram String serializada
-  agenda                String?
+  tags                  Json      @default("[]")
+  agenda                Json?
   requirements          String?
   created_at            DateTime  @default(now())
   updated_at            DateTime  @updatedAt
@@ -216,7 +216,7 @@ model Forum {
   title            String
   description      String?
   is_moderated     Boolean   @default(false)
-  moderator_ids    String    @default("[]") // Em SQLite arrays viram String serializada
+  moderator_ids    Json      @default("[]")
   total_topics     Int       @default(0)
   total_comments   Int       @default(0)
   total_members    Int       @default(0)
@@ -317,8 +317,8 @@ model Service {
   estimated_duration String?   
   base_price         Decimal?  
   is_custom_price    Boolean   @default(false)
-  technologies       String    @default("[]") // Em SQLite arrays viram String serializada
-  deliverables       String    @default("[]") // Em SQLite arrays viram String serializada
+  technologies       Json      @default("[]")
+  deliverables       Json      @default("[]")
   is_active          Boolean   @default(true)
   total_requests     Int       @default(0)
   average_rating     Decimal   @default(0) 
@@ -354,7 +354,7 @@ model ServiceRequest {
   actual_end_date      DateTime?
   status               String    @default("open") 
   priority             String    @default("medium") 
-  attachments          String?   // SQLite não aceita Json, mapeando como String JSON
+  attachments          Json?     
   last_message_date    DateTime?
   created_at           DateTime  @default(now())
   updated_at           DateTime  @updatedAt
@@ -476,7 +476,7 @@ model Message {
   edited_at       DateTime?
   is_deleted      Boolean   @default(false)
   deleted_at      DateTime?
-  reactions       String?   // SQLite não suporta Json, mapeando como String
+  reactions       Json?     
   created_at      DateTime  @default(now())
   updated_at      DateTime  @updatedAt
 
@@ -525,7 +525,7 @@ model AuditLog {
   entity_type String   
   entity_id   String?  
   description String?  
-  changes     String?  // SQLite nao suporta Json, mapeando como String
+  changes     Json?    
   ip_address  String?  
   user_agent  String?  
   created_at  DateTime @default(now())
